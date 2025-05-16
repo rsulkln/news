@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% extends "base.html" %}
+    <title>{% block title %} Home {% endblock title %}</title>
+  </head>
+  {% block content %} {% if user.is_authenticated %} Hi {{ user.username }}! You
+  are {{ user.age }} years old.
+  <form action="{% url 'logout' %}" method="post">
+    {{LoginRequiredMixin}} {% csrf_token %}
+    <button type="submit">Log Out</button>
+  </form>
+  <br />
+  <p>
+    <a class="btn btn-primary" href="{% url 'article_list' %}" role="button">
+      View all articles</a
+    >
+  </p>
+  <!-- new -->
+  {% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+  |
+  <a href="{% url 'singup' %}">Sign Up</a>
+  {% endif %} {% endblock content %}
+</html>
