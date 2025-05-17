@@ -20,27 +20,41 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-d+y9k$8ef680$ogdc9#^(1hb&nj)*w$0(^!$i#=-vd52ahgti*"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+from pathlib import Path
+from environs import Env 
 
-ALLOWED_HOSTS = []
+
+env = Env()
+env.read_env()
+
+DEBUG = env.bool("DEBUG",default = False)
+SECRET_KEY = env.str("SECRET_KEY")
+
+
+
+ALLOWED_HOSTS = [
+    ".herokuapp.com",
+    "127.0.0.1",
+    "localhost",
+]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    #default app
+    # default app
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "crispy_bootstrap5",
     "crispy_forms",
-    #my app
+    # my app
     "accounts",
     "pages",
     "articles",
@@ -50,12 +64,12 @@ INSTALLED_APPS = [
 TIME_ZONE = "America/New_York"
 
 
-
 AUTH_USER_MODEL = "accounts.CustomUser"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -68,7 +82,7 @@ ROOT_URLCONF = "django_project.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR/ "templates"],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -86,12 +100,7 @@ WSGI_APPLICATION = "django_project.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DATABASES = {"default": env.dj_db_url("DATABASE_URL")}
 
 
 # Password validation
@@ -129,13 +138,24 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIR = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage", # new
+    },
+}
+
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-
-
-
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -144,3 +164,7 @@ LOGOUT_REDIRECT_URL = "home"  # new
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"  # new
 CRISPY_TEMPLATE_PACK = "bootstrap5"  # new
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+CSRF_TRUSTED_ORIGINS = ["https://*.herokuapp.com"]
+
+
+
