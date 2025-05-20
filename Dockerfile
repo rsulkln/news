@@ -1,25 +1,23 @@
-FROM python:3.13.3
+FROM python:3.13
 
-# Set work directory inside the image
-WORKDIR /app
+WORKDIR /app 
 
-# Install system dependencies (like netcat, needed for entrypoint script)
-RUN apt-get  update && apt-get install -y netcat-traditional
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Upgrade pip
-RUN pip install --upgrade pip
+RUN apt-get update && apt-get install -y netcat-traditional
 
-# Copy Requirements.txt BEFORE installing Python dependencies
-COPY ./Requirements.txt /app/Requirements.txt
-RUN pip install -r Requirements.txt
+RUN pip install --upgrade pip 
+COPY ./Requirements.txt .
+RUN pip install --no-cache-dir -r Requirements.txt
 
-COPY . /app/
-# Copy entrypoint.sh and set permissions/format
+
+COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g' /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh       
+RUN chmod +x /app/entrypoint.sh
 
 
-# Set entrypoint to the correct path inside the image
-CMD ["/app/entrypoint.sh"]
+COPY . .
 
 
+CMD ["./entrypoint.sh"]
