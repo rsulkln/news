@@ -6,10 +6,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y netcat-traditional
+RUN apt-get install -y python3-dev libpq-dev
 
 RUN pip install --upgrade pip 
 COPY ./Requirements.txt .
-RUN pip install --no-cache-dir -r Requirements.txt
+RUN pip install -r Requirements.txt
 
 
 COPY ./entrypoint.sh .
